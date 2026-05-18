@@ -21,6 +21,16 @@ User prompt
 
 The project avoids freeform keypoint generation. It uses real pose data as the geometric source of truth so multi-person scenes stay more stable.
 
+## Features
+
+- Browse and select local OpenPose assets from ComfyUI.
+- Match structured pose intent to real database poses.
+- Render selected OpenPose keypoints for downstream ControlNet / Flux workflows.
+- Import downloaded pose collections into the OpenPose Manager folder layout.
+- Audit depth, bone-structure, and OpenPose JSON consistency with JSON, CSV, and HTML reports.
+- Reconstruct missing `*_openpose.json` files from color-coded `*_bone_structure.png` files when enough keypoints can be recovered.
+- Assign geometry-based pose attributes for filtering and matching.
+
 ## Project Layout
 
 ```text
@@ -79,6 +89,23 @@ Clean the cache:
 python scripts/build_pose_cache.py --clean
 ```
 
+## Pose Collection Import
+
+Import downloaded pose collections into the OpenPose Manager layout:
+
+```powershell
+python scripts/import_pose_collections.py --source "<downloaded_pose_folder>" --output-root "<ComfyUI>/models/openpose"
+```
+
+The source folder can also be set through `OPENPOSE_IMPORT_SOURCE`:
+
+```powershell
+$env:OPENPOSE_IMPORT_SOURCE="<downloaded_pose_folder>"
+python scripts/import_pose_collections.py --output-root "<ComfyUI>/models/openpose"
+```
+
+Use `--render-bone` when the source images are not already OpenPose-style skeleton previews.
+
 ## Pose Attributes
 
 Assign automatic pose attributes from keypoint geometry:
@@ -94,6 +121,26 @@ python scripts/auto_pose_attributes.py --root "$HOME/ComfyUI/models/openpose" --
 ```
 
 Attributes are written into OpenPose JSON metadata as `meta.auto_attributes` and `meta.attributes`.
+
+## Pose Asset Audit
+
+Check depth, bone-structure, and OpenPose JSON consistency:
+
+```powershell
+python scripts/audit_pose_assets.py --only-issues
+```
+
+Limit the audit to one folder:
+
+```powershell
+python scripts/audit_pose_assets.py --scope sitting/F/nsfw/sitting --only-issues
+```
+
+The script writes local JSON, CSV, and HTML reports in the plugin folder. To create missing `*_openpose.json` files from color-coded `*_bone_structure.png` files:
+
+```powershell
+python scripts/audit_pose_assets.py --write-missing-json --min-bone-points 18
+```
 
 ## Pose Browser
 

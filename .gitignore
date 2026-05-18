@@ -19,6 +19,7 @@ env/
 # ComfyUI / PAL generated runtime files
 pose_registry_cache.json
 pose_registry_cache.json.*
+pose_asset_audit_report.*
 debug_log.txt
 codex_context.txt
 web/pose_thumbnails/

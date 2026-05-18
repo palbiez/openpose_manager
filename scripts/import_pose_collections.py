@@ -19,6 +19,7 @@ from __future__ import annotations
 import argparse
 import binascii
 import json
+import os
 import re
 import shutil
 import struct
@@ -28,9 +29,8 @@ from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 import zlib
 
 
-DEFAULT_SOURCE = Path(
-    r"C:\EasyDiffusion\stable-diffusion\stable-diffusion-webui\models\openpose\new poses"
-)
+DEFAULT_SOURCE_ENV = "OPENPOSE_IMPORT_SOURCE"
+DEFAULT_SOURCE = Path(os.environ[DEFAULT_SOURCE_ENV]) if os.environ.get(DEFAULT_SOURCE_ENV) else None
 
 IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".webp"}
 JSON_EXT = ".json"
@@ -760,7 +760,12 @@ def import_record(record: PoseRecord, args: argparse.Namespace) -> Tuple[str, Op
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Import downloaded pose collections into the OPM dataset layout.")
-    parser.add_argument("--source", type=Path, default=DEFAULT_SOURCE, help="Source folder containing downloaded pose collections.")
+    parser.add_argument(
+        "--source",
+        type=Path,
+        default=DEFAULT_SOURCE,
+        help=f"Source folder containing downloaded pose collections. Can also be set via {DEFAULT_SOURCE_ENV}.",
+    )
     parser.add_argument("--output-root", type=Path, default=None, help="OpenPose output root. Defaults to the parent of 'new poses'.")
     parser.add_argument("--variant", default="base", help="Dataset variant to write, usually 'base'.")
     parser.add_argument("--gender", default="F", help="Gender token to write into the folder layout.")
@@ -778,9 +783,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--verbose", action="store_true", help="Print each imported/skipped file.")
     args = parser.parse_args()
 
-    args.source = args.source.expanduser().resolve()
+    if args.source is not None:
+        args.source = args.source.expanduser().resolve()
     if args.output_root is None:
-        args.output_root = default_output_root(args.source)
+        if args.source is None:
+            args.output_root = None
+        else:
+            args.output_root = default_output_root(args.source)
     else:
         args.output_root = args.output_root.expanduser().resolve()
     return args
@@ -788,6 +797,8 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_args()
+    if args.source is None:
+        raise SystemExit(f"Source folder is required. Use --source or set {DEFAULT_SOURCE_ENV}.")
     if not args.source.exists():
         raise SystemExit(f"Source folder does not exist: {args.source}")
 
