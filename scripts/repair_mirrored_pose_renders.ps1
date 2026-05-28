@@ -16,6 +16,9 @@ powershell -ExecutionPolicy Bypass -File .\scripts\repair_mirrored_pose_renders.
 
 .EXAMPLE
 powershell -ExecutionPolicy Bypass -File .\scripts\repair_mirrored_pose_renders.ps1 -Apply -Backup
+
+.EXAMPLE
+powershell -ExecutionPolicy Bypass -File .\scripts\repair_mirrored_pose_renders.ps1 -Classification ambiguous -BaseNamePattern "*dance_03" -Apply -Backup
 #>
 
 [CmdletBinding()]
@@ -24,7 +27,10 @@ param(
     [string]$Root = "",
     [ValidateSet("depth", "normal", "lineart", "bone_structure")]
     [string[]]$Kinds = @("depth", "normal", "lineart"),
-    [string]$Classification = "mirror_candidate",
+    [string[]]$Classification = @("mirror_candidate"),
+    [string[]]$BaseNamePattern = @("*"),
+    [double]$MinFlipDelta = -1.0,
+    [double]$MinFlippedScore = -1.0,
     [switch]$Apply,
     [switch]$Backup,
     [string]$Magick = "magick"
@@ -64,6 +70,29 @@ function Resolve-AssetPath {
     return [System.IO.Path]::GetFullPath((Join-Path $RootPath $relative))
 }
 
+function Test-AnyLike {
+    param(
+        [AllowEmptyString()][string]$Value,
+        [Parameter(Mandatory = $true)][string[]]$Patterns
+    )
+
+    foreach ($pattern in $Patterns) {
+        if ($Value -like $pattern) {
+            return $true
+        }
+    }
+    return $false
+}
+
+function Read-Score {
+    param([AllowEmptyString()][string]$Value)
+
+    if ([string]::IsNullOrWhiteSpace($Value)) {
+        return $null
+    }
+    return [double]::Parse($Value, [System.Globalization.CultureInfo]::InvariantCulture)
+}
+
 $rootPath = (Resolve-Path -LiteralPath $Root).Path
 $reportPath = (Resolve-Path -LiteralPath $Report).Path
 $magickCommand = Get-Command $Magick -ErrorAction Stop
@@ -71,7 +100,20 @@ $rows = Import-Csv -LiteralPath $reportPath
 
 $targets = [ordered]@{}
 foreach ($row in $rows) {
-    if ($row.classification -ne $Classification) {
+    if ($Classification -notcontains $row.classification) {
+        continue
+    }
+
+    if (-not (Test-AnyLike -Value $row.base_name -Patterns $BaseNamePattern)) {
+        continue
+    }
+
+    $flipDelta = Read-Score -Value $row.flip_delta
+    $flippedScore = Read-Score -Value $row.flipped_score
+    if ($null -ne $flipDelta -and $flipDelta -lt $MinFlipDelta) {
+        continue
+    }
+    if ($null -ne $flippedScore -and $flippedScore -lt $MinFlippedScore) {
         continue
     }
 
@@ -101,6 +143,9 @@ Write-Host "Report: $reportPath"
 Write-Host "Root:   $rootPath"
 Write-Host "Mode:   $(if ($Apply) { 'APPLY' } else { 'DRY RUN' })"
 Write-Host "Kinds:  $($Kinds -join ', ')"
+Write-Host "Class:  $($Classification -join ', ')"
+Write-Host "Names:  $($BaseNamePattern -join ', ')"
+Write-Host "Scores: MinFlipDelta=$MinFlipDelta MinFlippedScore=$MinFlippedScore"
 Write-Host "Files:  $($targets.Count)"
 
 foreach ($path in $targets.Keys) {

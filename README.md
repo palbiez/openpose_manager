@@ -178,6 +178,18 @@ Apply the fix with backups:
 powershell -ExecutionPolicy Bypass -File .\scripts\repair_mirrored_pose_renders.ps1 -Apply -Backup
 ```
 
+Ambiguous candidates are not repaired by default. Repair a known ambiguous pose by name pattern:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\repair_mirrored_pose_renders.ps1 -Classification ambiguous -BaseNamePattern "*dance_03" -Apply -Backup
+```
+
+Or dry-run ambiguous candidates above explicit score thresholds:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\repair_mirrored_pose_renders.ps1 -Classification ambiguous -MinFlipDelta 0.14 -MinFlippedScore 0.66
+```
+
 The repair script reads `pose_image_alignment_audit.csv`, uses `OPENPOSE_MODELS_PATH` when no `-Root` is passed, and requires ImageMagick. It flips `depth`, `normal`, and `lineart` files by default. It does not modify `*_bone_structure.png` or `*_openpose.json`.
 
 ## Pose Browser
