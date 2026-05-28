@@ -20,6 +20,7 @@ env/
 pose_registry_cache.json
 pose_registry_cache.json.*
 pose_asset_audit_report.*
+pose_image_alignment_audit.*
 debug_log.txt
 codex_context.txt
 web/pose_thumbnails/

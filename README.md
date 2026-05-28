@@ -28,6 +28,7 @@ The project avoids freeform keypoint generation. It uses real pose data as the g
 - Render selected OpenPose keypoints for downstream ControlNet / Flux workflows.
 - Import downloaded pose collections into the OpenPose Manager folder layout.
 - Audit depth, bone-structure, and OpenPose JSON consistency with JSON, CSV, and HTML reports.
+- Audit image alignment between OpenPose JSON / bone previews and rendered depth, normal, or lineart companions.
 - Reconstruct missing `*_openpose.json` files from color-coded `*_bone_structure.png` files when enough keypoints can be recovered.
 - Assign geometry-based pose attributes for filtering and matching.
 
@@ -141,6 +142,43 @@ The script writes local JSON, CSV, and HTML reports in the plugin folder. To cre
 ```powershell
 python scripts/audit_pose_assets.py --write-missing-json --min-bone-points 18
 ```
+
+## Pose Image Alignment Audit
+
+Check whether rendered companion images are horizontally mirrored or mismatched relative to `*_bone_structure.png` and `*_openpose.json`:
+
+```powershell
+$env:OPENPOSE_MODELS_PATH="<ComfyUI>\models\openpose"
+python scripts/audit_pose_image_alignment.py --only-issues
+```
+
+The script writes local JSON, CSV, and HTML reports in the plugin folder:
+
+```text
+pose_image_alignment_audit.json
+pose_image_alignment_audit.csv
+pose_image_alignment_audit.html
+```
+
+These reports are local maintenance output and are ignored by Git. The HTML report is the easiest way to inspect candidates visually. The relevant classifications are:
+
+- `mirror_candidate`: the horizontally flipped JSON/bone pose overlaps the rendered image better than the original orientation.
+- `mismatch_candidate`: neither the original nor the flipped orientation overlaps well, so the files likely do not belong together.
+- `ambiguous`: possible issue, but the score is not strong enough for automatic repair.
+
+To repair only `mirror_candidate` rows, run a dry run first:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\repair_mirrored_pose_renders.ps1
+```
+
+Apply the fix with backups:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\repair_mirrored_pose_renders.ps1 -Apply -Backup
+```
+
+The repair script reads `pose_image_alignment_audit.csv`, uses `OPENPOSE_MODELS_PATH` when no `-Root` is passed, and requires ImageMagick. It flips `depth`, `normal`, and `lineart` files by default. It does not modify `*_bone_structure.png` or `*_openpose.json`.
 
 ## Pose Browser
 

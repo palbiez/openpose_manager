@@ -3,6 +3,7 @@ Pose Registry: Central database for all poses with unique IDs.
 Loads all poses from PNG-based database and provides search API.
 """
 
+import hashlib
 import importlib
 import json
 import os
@@ -16,7 +17,7 @@ from PIL import Image
 PLUGIN_ROOT = Path(__file__).resolve().parent.parent
 DEBUG_LOG_FILE = PLUGIN_ROOT / "debug_log.txt"
 CACHE_FILE = PLUGIN_ROOT / "pose_registry_cache.json"
-CACHE_SCHEMA_VERSION = 4
+CACHE_SCHEMA_VERSION = 5
 
 POSE_FILE_SUFFIX_RE = re.compile(
     r"_(dup\d+|duplicate\d*|copy\d*|bone_structure_full|bone_structure|openposefull|openposehand|openpose|"
@@ -78,6 +79,76 @@ class PoseRegistry:
         debug_log(f"[DEBUG] PoseRegistry.__init__: Building index for {len(self.poses)} poses")
         self._build_index()
         debug_log(f"[DEBUG] PoseRegistry.__init__: Initialization complete. Total poses: {len(self.poses)}")
+
+    def _build_source_fingerprint(self, openpose_dir: Path) -> Dict:
+        """Build a compact fingerprint of pose source files for cache invalidation."""
+        if not openpose_dir.exists():
+            return {
+                "root": str(openpose_dir),
+                "exists": False,
+                "file_count": 0,
+                "newest_mtime": 0,
+                "digest": "",
+            }
+
+        digest = hashlib.sha256()
+        file_count = 0
+        newest_mtime = 0
+
+        source_files = []
+        for pattern in ("*.png", "*.json"):
+            source_files.extend(openpose_dir.rglob(pattern))
+
+        for pose_path in sorted(source_files, key=lambda path: path.relative_to(openpose_dir).as_posix().lower()):
+            if self._is_skipped_pose_file(pose_path):
+                continue
+            try:
+                stat = pose_path.stat()
+                rel_path = pose_path.relative_to(openpose_dir).as_posix()
+            except OSError:
+                continue
+
+            digest.update(rel_path.encode("utf-8", errors="surrogatepass"))
+            digest.update(b"\0")
+            digest.update(str(stat.st_size).encode("ascii"))
+            digest.update(b"\0")
+            digest.update(str(stat.st_mtime_ns).encode("ascii"))
+            digest.update(b"\0")
+            file_count += 1
+            newest_mtime = max(newest_mtime, stat.st_mtime)
+
+        return {
+            "root": str(openpose_dir.resolve()),
+            "exists": True,
+            "file_count": file_count,
+            "newest_mtime": newest_mtime,
+            "digest": digest.hexdigest(),
+        }
+
+    @staticmethod
+    def _source_fingerprints_match(cached: object, current: Dict) -> bool:
+        if not isinstance(cached, dict):
+            return False
+        return all(
+            cached.get(key) == current.get(key)
+            for key in ("root", "file_count", "digest")
+        )
+
+    @staticmethod
+    def _cached_pose_source_exists(pose: Dict) -> bool:
+        source_fields = (
+            "json_path",
+            "display_image",
+            "bone_structure_path",
+            "bone_structure_full_path",
+            "png_path",
+            "source_file",
+        )
+        for field in source_fields:
+            value = pose.get(field)
+            if value and Path(value).exists():
+                return True
+        return False
     
     def _load_from_cache(self) -> bool:
         """Try to load poses from cache file. Returns True if successful."""
@@ -99,23 +170,23 @@ class PoseRegistry:
                 debug_log("[DEBUG] _load_from_cache: Cache schema changed, rescanning...")
                 return False
             
-            # Check if cache is still valid by comparing file modification times
+            # Check if cache is still valid by comparing the complete source set.
+            # This detects additions, edits, renames, and deletions.
             openpose_dir = self._get_openpose_dir()
             debug_log(f"[DEBUG] _load_from_cache: OpenPose directory: {openpose_dir}")
             if openpose_dir.exists():
-                cache_mtime = cache_file.stat().st_mtime
-                newest_pose_file = 0
-                pose_file_count = 0
-                for pattern in ("*.png", "*.json"):
-                    for pose_path in openpose_dir.rglob(pattern):
-                        pose_mtime = pose_path.stat().st_mtime
-                        newest_pose_file = max(newest_pose_file, pose_mtime)
-                        pose_file_count += 1
-                
-                debug_log(f"[DEBUG] _load_from_cache: Found {pose_file_count} pose files, newest mtime: {newest_pose_file}, cache mtime: {cache_mtime}")
-                
-                if newest_pose_file > cache_mtime:
-                    debug_log("[DEBUG] _load_from_cache: Cache is outdated, rescanning...")
+                current_fingerprint = self._build_source_fingerprint(openpose_dir)
+                cached_fingerprint = cache_data.get("source_fingerprint")
+
+                debug_log(
+                    "[DEBUG] _load_from_cache: Source fingerprint "
+                    f"files={current_fingerprint['file_count']} "
+                    f"newest_mtime={current_fingerprint['newest_mtime']} "
+                    f"digest={current_fingerprint['digest'][:12]}"
+                )
+
+                if not self._source_fingerprints_match(cached_fingerprint, current_fingerprint):
+                    debug_log("[DEBUG] _load_from_cache: Source files changed, rescanning...")
                     return False
             
             # Load from cache. The cache intentionally stores only metadata and
@@ -140,6 +211,19 @@ class PoseRegistry:
                 if has_pose_files:
                     debug_log("[DEBUG] _load_from_cache: WARNING: cache is empty but OpenPose files are present; rescanning...")
                     return False
+
+            missing_cached_sources = [
+                pose for pose in self.poses
+                if not self._cached_pose_source_exists(pose)
+            ]
+            if missing_cached_sources:
+                debug_log(
+                    "[DEBUG] _load_from_cache: "
+                    f"{len(missing_cached_sources)} cached poses point to missing source files; rescanning..."
+                )
+                self.poses = []
+                self.poses_by_id = {}
+                return False
             
             debug_log("[DEBUG] _load_from_cache: Cache load successful")
             return True
@@ -152,6 +236,7 @@ class PoseRegistry:
         """Save current poses to cache file."""
         try:
             cache_file = CACHE_FILE
+            openpose_dir = self._get_openpose_dir()
             
             cache_fields = [
                 "id",
@@ -179,6 +264,7 @@ class PoseRegistry:
 
             cache_data = {
                 "schema_version": CACHE_SCHEMA_VERSION,
+                "source_fingerprint": self._build_source_fingerprint(openpose_dir),
                 "poses": serializable_poses,
                 "total_poses": len(self.poses)
             }
