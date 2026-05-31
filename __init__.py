@@ -5,10 +5,10 @@ import sys
 from pathlib import Path
 
 from .nodes.ollama_pose_parser_node import OllamaPoseParserNode
-from .nodes.pose_browser_node import PoseBrowserLauncherNode, PoseLoadByIdNode, PoseStructureByIdNode
+from .nodes.pose_browser_node import PoseBrowserLauncherNode, PoseLoadByIdNode
 from .nodes.pose_from_structure_node import PoseFromStructureNode
 from .nodes.pose_matcher_node import PoseMatcherNode
-from .nodes.pose_renderer_node import PoseOpenPoseRendererNode, SkeletonFromJSON
+from .nodes.pose_renderer_node import PoseOpenPoseRendererNode
 from .nodes.pose_selector_node import PoseSelectorNode
 
 # Import debug_log from pose_registry
@@ -20,32 +20,15 @@ except ImportError:
 
 OPM_NODE_CLASS_MAPPINGS = {
     "OPM_OllamaPoseParser": OllamaPoseParserNode,
-    "OPM_OpenPoseRenderer": PoseOpenPoseRendererNode,
-    "OPM_SkeletonFromIDs": SkeletonFromJSON,
-    "OPM_PoseMatcher": PoseMatcherNode,
-    "OPM_PoseSelector": PoseSelectorNode,
     "OPM_PoseFromStructure": PoseFromStructureNode,
+    "OPM_PoseSelector": PoseSelectorNode,
     "OPM_PoseByID": PoseLoadByIdNode,
-    "OPM_PoseStructureByID": PoseStructureByIdNode,
+    "OPM_OpenPoseRenderer": PoseOpenPoseRendererNode,
+    "OPM_PoseMatcher": PoseMatcherNode,
     "OPM_OpenPoseBrowserLauncher": PoseBrowserLauncherNode,
 }
 
-LEGACY_NODE_CLASS_MAPPINGS = {
-    "OllamaPoseParserNode": OllamaPoseParserNode,
-    "PoseOpenPoseRendererNode": PoseOpenPoseRendererNode,
-    "SkeletonFromJSON": SkeletonFromJSON,
-    "PoseMatcherNode": PoseMatcherNode,
-    "PoseSelectorNode": PoseSelectorNode,
-    "PoseFromStructureNode": PoseFromStructureNode,
-    "PoseLoadByIdNode": PoseLoadByIdNode,
-    "PoseStructureByIdNode": PoseStructureByIdNode,
-    "PoseBrowserLauncherNode": PoseBrowserLauncherNode,
-}
-
-NODE_CLASS_MAPPINGS = {
-    **OPM_NODE_CLASS_MAPPINGS,
-    **LEGACY_NODE_CLASS_MAPPINGS,
-}
+NODE_CLASS_MAPPINGS = OPM_NODE_CLASS_MAPPINGS
 
 
 def _register_comfy_routes() -> bool:
@@ -213,30 +196,13 @@ if (
 WEB_DIRECTORY = "web"
 
 OPM_NODE_DISPLAY_NAME_MAPPINGS = {
-    "OPM_OllamaPoseParser": "OPM_Ollama Pose Parser",
-    "OPM_OpenPoseRenderer": "OPM_OpenPose Renderer",
-    "OPM_SkeletonFromIDs": "OPM_Skeleton From IDs",
-    "OPM_PoseMatcher": "OPM_Pose Matcher",
-    "OPM_PoseSelector": "OPM_Pose Selector",
-    "OPM_PoseFromStructure": "OPM_Pose From Structure",
-    "OPM_PoseByID": "OPM_Pose By ID",
-    "OPM_PoseStructureByID": "OPM_Pose Structure By ID",
-    "OPM_OpenPoseBrowserLauncher": "OPM_OpenPose Browser Launcher",
+    "OPM_OllamaPoseParser": "OPM Ollama Pose Parser",
+    "OPM_PoseFromStructure": "OPM Pose From Structure",
+    "OPM_PoseSelector": "OPM Pose Selector",
+    "OPM_PoseByID": "OPM Pose By ID",
+    "OPM_OpenPoseRenderer": "OPM OpenPose Renderer",
+    "OPM_PoseMatcher": "OPM Pose Matcher",
+    "OPM_OpenPoseBrowserLauncher": "OPM OpenPose Browser Launcher",
 }
 
-LEGACY_NODE_DISPLAY_NAME_MAPPINGS = {
-    "OllamaPoseParserNode": "OPM_Legacy Ollama Pose Parser",
-    "PoseOpenPoseRendererNode": "OPM_Legacy OpenPose Renderer",
-    "SkeletonFromJSON": "OPM_Legacy Skeleton From IDs",
-    "PoseMatcherNode": "OPM_Legacy Pose Matcher",
-    "PoseSelectorNode": "OPM_Legacy Pose Selector",
-    "PoseFromStructureNode": "OPM_Legacy Pose From Structure",
-    "PoseLoadByIdNode": "OPM_Legacy Pose By ID",
-    "PoseStructureByIdNode": "OPM_Legacy Pose Structure By ID",
-    "PoseBrowserLauncherNode": "OPM_Legacy OpenPose Browser Launcher",
-}
-
-NODE_DISPLAY_NAME_MAPPINGS = {
-    **OPM_NODE_DISPLAY_NAME_MAPPINGS,
-    **LEGACY_NODE_DISPLAY_NAME_MAPPINGS,
-}
+NODE_DISPLAY_NAME_MAPPINGS = OPM_NODE_DISPLAY_NAME_MAPPINGS

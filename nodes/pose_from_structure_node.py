@@ -39,7 +39,7 @@ class PoseFromStructureNode:
     RETURN_TYPES = ("STRING", "STRING")
     RETURN_NAMES = ("pose_json", "match_report_json")
     FUNCTION = "convert"
-    CATEGORY = "pose"
+    CATEGORY = "OPM/Selection"
 
     def __init__(self):
         self.registry = get_registry()

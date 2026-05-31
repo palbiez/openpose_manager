@@ -1,4 +1,4 @@
-# Python
+# Python caches and test output
 __pycache__/
 *.py[cod]
 *$py.class
@@ -6,21 +6,37 @@ __pycache__/
 .mypy_cache/
 .ruff_cache/
 .coverage
+.coverage.*
+coverage.xml
 htmlcov/
+.ipynb_checkpoints/
+
+# Python packaging
+build/
+dist/
+*.egg-info/
 
 # Virtual environments and local config
 .venv/
 venv/
 env/
+.envrc
 .env
 .env.*
-.vscode/
 
-# ComfyUI / PAL generated runtime files
+# Editor and IDE state
+.vscode/
+.idea/
+skeleton_generator.code-workspace
+*.code-workspace
+
+# ComfyUI / OPM generated runtime files
 pose_registry_cache.json
 pose_registry_cache.json.*
 pose_asset_audit_report.*
 pose_image_alignment_audit.*
+repair_nsfw_openpose_assets_*.csv
+repair_nsfw_openpose_assets_*.json
 debug_log.txt
 codex_context.txt
 web/pose_thumbnails/
@@ -36,22 +52,24 @@ zusätzliche_posen.txt
 models/
 openpose/
 
-
-# Local editor state
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-*.code-workspace 
+# Frontend/tooling artifacts
+node_modules/
+.vite/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 
 # Temporary/debug output
 *.tmp
 *.bak
 *.log
+*.orig
 tmp/
 temp/
 scratch/
+output/
+input/
 
 # OS files
 .DS_Store

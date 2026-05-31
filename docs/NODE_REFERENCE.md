@@ -1,8 +1,10 @@
 # Node Reference
 
-## OPM_Ollama Pose Parser
+## OPM Ollama Pose Parser
 
 Class: `OllamaPoseParserNode`
+
+Sidebar: `OPM/AI`
 
 Normalizes JSON returned by Ollama into `pal_pose_intent/v1`.
 
@@ -17,9 +19,11 @@ Outputs:
 - `structure_json`: normalized pose intent JSON.
 - `parser_report_json`: parser status and counts.
 
-## OPM_Pose From Structure
+## OPM Pose From Structure
 
 Class: `PoseFromStructureNode`
+
+Sidebar: `OPM/Selection`
 
 Selects real database poses from normalized person specs.
 
@@ -36,9 +40,11 @@ Outputs:
 - `pose_json`: `pal_pose_selection/v1` with selected people and keypoints.
 - `match_report_json`: selected IDs, candidate counts, scores, and request echo.
 
-## OPM_Pose Selector
+## OPM Pose Selector
 
 Class: `PoseSelectorNode`
+
+Sidebar: `OPM/Selection`
 
 Manual pose selection by ID or category filters.
 
@@ -56,9 +62,11 @@ Outputs:
 - `pose_json`: selected pose as `pal_pose_selection/v1`.
 - `metadata_json`: selection report.
 
-## OPM_Pose By ID
+## OPM Pose By ID
 
 Class: `PoseLoadByIdNode`
+
+Sidebar: `OPM/Browser`
 
 Loads a pose by browser/registry ID.
 
@@ -75,9 +83,11 @@ Outputs:
 - `bone_image_path`: bone structure path when available.
 - `metadata_json`: pose metadata.
 
-## OPM_OpenPose Renderer
+## OPM OpenPose Renderer
 
 Class: `PoseOpenPoseRendererNode`
+
+Sidebar: `OPM/Render`
 
 Renders OpenPose/COCO/OPM keypoint JSON into a ComfyUI `IMAGE`.
 
@@ -94,9 +104,11 @@ Outputs:
 - `image`: ComfyUI image tensor.
 - `rendered_pose_json`: final keypoint payload after optional fitting.
 
-## OPM_Pose Matcher
+## OPM Pose Matcher
 
 Class: `PoseMatcherNode`
+
+Sidebar: `OPM/Analysis`
 
 Compares incoming keypoints to the reference database.
 
@@ -109,9 +121,11 @@ Outputs:
 
 - `matches_json`: list of matched poses with IDs, scores, metadata, and keypoints.
 
-## OPM_OpenPose Browser Launcher
+## OPM OpenPose Browser Launcher
 
 Class: `PoseBrowserLauncherNode`
+
+Sidebar: `OPM/Browser`
 
 Starts the local browser server manually.
 
@@ -119,6 +133,6 @@ Output:
 
 - `status`: launch status text.
 
-## Legacy Node
+## Removed Legacy Nodes
 
-`SkeletonFromJSON` remains registered as `OPM_Legacy Skeleton From IDs` for old workflows that dynamically add `pose_1_id`, `pose_2_id`, etc. New workflows should use `OPM_OpenPose Renderer`.
+The old duplicate aliases and path-only legacy nodes are no longer registered in ComfyUI. Use `OPM Pose By ID` and `OPM OpenPose Renderer` for current workflows.

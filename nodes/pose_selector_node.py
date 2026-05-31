@@ -106,7 +106,7 @@ class PoseSelectorNode:
     RETURN_TYPES = ("STRING", "STRING")
     RETURN_NAMES = ("pose_json", "metadata_json")
     FUNCTION = "select"
-    CATEGORY = "pose"
+    CATEGORY = "OPM/Selection"
 
     def __init__(self):
         self.registry = get_registry()

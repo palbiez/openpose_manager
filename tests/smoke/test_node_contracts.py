@@ -8,7 +8,11 @@ if str(ROOT) not in sys.path:
 
 from core.openpose_io import extract_people
 from nodes.ollama_pose_parser_node import OllamaPoseParserNode
+from nodes.pose_browser_node import PoseBrowserLauncherNode, PoseLoadByIdNode
+from nodes.pose_from_structure_node import PoseFromStructureNode
+from nodes.pose_matcher_node import PoseMatcherNode
 from nodes.pose_renderer_node import PoseOpenPoseRendererNode
+from nodes.pose_selector_node import PoseSelectorNode
 
 
 def test_ollama_parser_contract():
@@ -44,3 +48,21 @@ def test_renderer_accepts_pal_payload():
     assert tuple(image.shape) == (1, 256, 256, 3)
     assert json.loads(rendered_json)["people"][0]["id"] == 1
 
+
+def test_node_categories_use_opm_sidebar_prefix():
+    categories = {
+        OllamaPoseParserNode.CATEGORY,
+        PoseFromStructureNode.CATEGORY,
+        PoseSelectorNode.CATEGORY,
+        PoseLoadByIdNode.CATEGORY,
+        PoseOpenPoseRendererNode.CATEGORY,
+        PoseMatcherNode.CATEGORY,
+        PoseBrowserLauncherNode.CATEGORY,
+    }
+    assert categories == {
+        "OPM/AI",
+        "OPM/Selection",
+        "OPM/Browser",
+        "OPM/Render",
+        "OPM/Analysis",
+    }

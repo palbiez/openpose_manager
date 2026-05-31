@@ -18,7 +18,7 @@ class PoseMatcherNode:
     RETURN_TYPES = ("STRING",)
     RETURN_NAMES = ("matches_json",)
     FUNCTION = "run"
-    CATEGORY = "pose"
+    CATEGORY = "OPM/Analysis"
 
     def __init__(self):
         self.matcher = PoseMatcher()

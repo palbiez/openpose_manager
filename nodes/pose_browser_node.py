@@ -59,7 +59,7 @@ class PoseLoadByIdNode:
     RETURN_TYPES = ("STRING", "STRING", "STRING", "STRING", "STRING")
     RETURN_NAMES = ("pose_json", "selected_image_path", "depth_image_path", "bone_image_path", "metadata_json")
     FUNCTION = "load"
-    CATEGORY = "pose"
+    CATEGORY = "OPM/Browser"
 
     def __init__(self):
         self.registry = get_registry()
@@ -97,52 +97,6 @@ class PoseLoadByIdNode:
             json.dumps(metadata, indent=2, ensure_ascii=False),
         )
 
-
-class PoseStructureByIdNode:
-    """Legacy path-only ID node kept for existing workflows."""
-
-    @classmethod
-    def INPUT_TYPES(cls):
-        return {
-            "required": {
-                "pose_id": ("INT", {"default": 1, "min": 1}),
-                "preferred_image": (["auto", "depth", "bone_structure", "bone_structure_full"], {"default": "auto"}),
-            }
-        }
-
-    RETURN_TYPES = ("STRING", "STRING", "STRING")
-    RETURN_NAMES = ("selected_path", "full_path", "pose_info")
-    FUNCTION = "resolve"
-    CATEGORY = "pose"
-
-    def __init__(self):
-        self.registry = get_registry()
-
-    def resolve(self, pose_id, preferred_image):
-        pose_data = self.registry.get_pose_by_id(pose_id)
-        if not pose_data:
-            info = json.dumps({"error": f"Pose ID {pose_id} not found"}, indent=2)
-            return ("", "", info)
-
-        bone_structure = pose_data.get("bone_structure_path") or ""
-        bone_structure_full = pose_data.get("bone_structure_full_path") or ""
-        selected = _select_image(pose_data, preferred_image)
-
-        info_payload = {
-            "id": pose_data.get("id"),
-            "pose": pose_data.get("pose"),
-            "variant": pose_data.get("variant"),
-            "subpose": pose_data.get("subpose"),
-            "attributes": pose_data.get("attributes", []),
-            "source_file": pose_data.get("source_file"),
-            "display_image": pose_data.get("display_image"),
-            "bone_structure": bone_structure,
-            "bone_structure_full": bone_structure_full,
-        }
-
-        return (str(selected), str(bone_structure_full), json.dumps(info_payload, indent=2, default=str))
-
-
 class PoseBrowserLauncherNode:
     """Launch the OpenPose browser from inside ComfyUI."""
 
@@ -155,7 +109,7 @@ class PoseBrowserLauncherNode:
     RETURN_TYPES = ("STRING",)
     RETURN_NAMES = ("status",)
     FUNCTION = "start_server"
-    CATEGORY = "pose"
+    CATEGORY = "OPM/Browser"
 
     def start_server(self):
         server_script = Path(__file__).resolve().parent.parent / "pose_browser_server.py"

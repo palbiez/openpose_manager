@@ -50,7 +50,7 @@ class OllamaPoseParserNode:
     RETURN_TYPES = ("STRING", "STRING")
     RETURN_NAMES = ("structure_json", "parser_report_json")
     FUNCTION = "parse"
-    CATEGORY = "pose"
+    CATEGORY = "OPM/AI"
 
     @staticmethod
     def _normalize_attributes(values: Any) -> List[str]:

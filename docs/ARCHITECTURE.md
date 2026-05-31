@@ -11,9 +11,9 @@ The project uses real OpenPose data as the geometry source of truth. Ollama or a
 ```text
 User prompt
 -> Ollama scene/person extraction
--> OPM_Ollama Pose Parser
--> OPM_Pose From Structure
--> OPM_OpenPose Renderer
+-> OPM Ollama Pose Parser
+-> OPM Pose From Structure
+-> OPM OpenPose Renderer
 -> ControlNet / Flux workflow
 ```
 
@@ -21,8 +21,8 @@ Manual workflows can skip Ollama:
 
 ```text
 Pose Browser ID
--> OPM_Pose By ID
--> OPM_OpenPose Renderer
+-> OPM Pose By ID
+-> OPM OpenPose Renderer
 -> ControlNet / Flux workflow
 ```
 

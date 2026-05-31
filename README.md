@@ -243,13 +243,23 @@ export EXIFTOOL_PATH="/usr/local/bin/exiftool"
 
 ## Main Nodes
 
-- `OPM_Ollama Pose Parser`: validates and normalizes Ollama JSON output.
-- `OPM_Pose From Structure`: selects real database poses from normalized structure JSON.
-- `OPM_Pose Selector`: manually selects a pose by ID, filters, and attributes.
-- `OPM_Pose By ID`: loads pose JSON, image paths, and metadata from a browser pose ID.
-- `OPM_OpenPose Renderer`: renders OPM/OpenPose keypoint JSON to a ComfyUI `IMAGE`.
-- `OPM_Pose Matcher`: finds similar database poses for incoming keypoints.
-- `OPM_OpenPose Browser Launcher`: manually starts the browser server.
+- `OPM Ollama Pose Parser`: validates and normalizes Ollama JSON output.
+- `OPM Pose From Structure`: selects real database poses from normalized structure JSON.
+- `OPM Pose Selector`: manually selects a pose by ID, filters, and attributes.
+- `OPM Pose By ID`: loads pose JSON, image paths, and metadata from a browser pose ID.
+- `OPM OpenPose Renderer`: renders OPM/OpenPose keypoint JSON to a ComfyUI `IMAGE`.
+- `OPM Pose Matcher`: finds similar database poses for incoming keypoints.
+- `OPM OpenPose Browser Launcher`: manually starts the browser server.
+
+## ComfyUI Sidebar
+
+Nodes are grouped under the `OPM` sidebar folder:
+
+- `OPM/AI`: prompt or LLM structure parsing.
+- `OPM/Selection`: pose lookup and matching from structured intent.
+- `OPM/Browser`: pose browser ID loading and browser launch.
+- `OPM/Render`: OpenPose skeleton rendering.
+- `OPM/Analysis`: similarity matching utilities.
 
 See [docs/NODE_REFERENCE.md](docs/NODE_REFERENCE.md) for input and output contracts.
 
