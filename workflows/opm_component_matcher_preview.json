@@ -1,0 +1,84 @@
+{
+  "id": "opm-component-matcher-preview",
+  "revision": 0,
+  "last_node_id": 4,
+  "last_link_id": 3,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "PrimitiveString",
+      "pos": [80, 120],
+      "size": [420, 90],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [{"localized_name": "value", "name": "value", "type": "STRING", "widget": {"name": "value"}, "link": null}],
+      "outputs": [{"localized_name": "STRING", "name": "STRING", "type": "STRING", "links": [1]}],
+      "title": "Sample Keypoints",
+      "properties": {"Node name for S&R": "PrimitiveString"},
+      "widgets_values": ["[220,120,1,228,138,1,236,156,1,244,174,1,252,192,1,260,210,1,268,228,1,276,246,1,284,264,1,292,282,1,300,300,1,308,318,1,316,336,1,324,354,1,332,372,1,340,390,1,348,408,1,356,426,1]"]
+    },
+    {
+      "id": 2,
+      "type": "OPM_PoseMatcher",
+      "pos": [560, 120],
+      "size": [300, 140],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {"localized_name": "coco_keypoints", "name": "coco_keypoints", "type": "STRING", "widget": {"name": "coco_keypoints"}, "link": 1},
+        {"localized_name": "top_k", "name": "top_k", "type": "INT", "widget": {"name": "top_k"}, "link": null}
+      ],
+      "outputs": [{"localized_name": "matches_json", "name": "matches_json", "type": "STRING", "links": [2]}],
+      "properties": {"Node name for S&R": "OPM_PoseMatcher"},
+      "widgets_values": ["", 1]
+    },
+    {
+      "id": 3,
+      "type": "OPM_OpenPoseRenderer",
+      "pos": [920, 120],
+      "size": [370, 230],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {"localized_name": "pose_json", "name": "pose_json", "type": "STRING", "widget": {"name": "pose_json"}, "link": 2},
+        {"localized_name": "width", "name": "width", "type": "INT", "widget": {"name": "width"}, "link": null},
+        {"localized_name": "height", "name": "height", "type": "INT", "widget": {"name": "height"}, "link": null},
+        {"localized_name": "layout", "name": "layout", "type": "COMBO", "widget": {"name": "layout"}, "link": null},
+        {"localized_name": "style", "name": "style", "type": "COMBO", "widget": {"name": "style"}, "link": null},
+        {"localized_name": "line_width", "name": "line_width", "type": "INT", "widget": {"name": "line_width"}, "link": null},
+        {"localized_name": "point_radius", "name": "point_radius", "type": "INT", "widget": {"name": "point_radius"}, "link": null}
+      ],
+      "outputs": [
+        {"localized_name": "image", "name": "image", "type": "IMAGE", "links": [3]},
+        {"localized_name": "rendered_pose_json", "name": "rendered_pose_json", "type": "STRING", "links": []}
+      ],
+      "properties": {"Node name for S&R": "OPM_OpenPoseRenderer"},
+      "widgets_values": ["", 832, 1216, "fit_each_person", "openpose_color", 4, 4]
+    },
+    {
+      "id": 4,
+      "type": "PreviewImage",
+      "pos": [1340, 120],
+      "size": [315, 280],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [{"localized_name": "images", "name": "images", "type": "IMAGE", "link": 3}],
+      "outputs": [],
+      "properties": {"Node name for S&R": "PreviewImage"},
+      "widgets_values": []
+    }
+  ],
+  "links": [
+    [1, 1, 0, 2, 0, "STRING"],
+    [2, 2, 0, 3, 0, "STRING"],
+    [3, 3, 0, 4, 0, "IMAGE"]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {"ue_links": [], "links_added_by_ue": [], "ds": {"scale": 0.9, "offset": [220, 160]}},
+  "version": 0.4
+}

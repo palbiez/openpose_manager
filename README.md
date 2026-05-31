@@ -263,6 +263,16 @@ Nodes are grouped under the `OPM` sidebar folder:
 
 See [docs/NODE_REFERENCE.md](docs/NODE_REFERENCE.md) for input and output contracts.
 
+## Test Workflows
+
+Example ComfyUI workflows are in [workflows](workflows):
+
+- `opm_t2i_pose_by_id_pony.json`: T2I with pose lookup by registry ID.
+- `opm_t2i_ollama_pose_selection_pony.json`: Pony T2I with Ollama-driven pose selection.
+- `opm_component_*_preview.json`: focused component smoke workflows.
+
+The Ollama system prompt for pose selection is stored in [system_prompts/opm_ollama_pose_selection_system_prompt.txt](system_prompts/opm_ollama_pose_selection_system_prompt.txt).
+
 ## Development Checks
 
 Run lightweight smoke checks:
